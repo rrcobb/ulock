@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+
+require 'ulock'
+require 'commander'
+
+Commander.configure do
+  program :name, 'ulock'
+  program :version, '0.0.1'
+  program :description, 'lock and unlock files, real easy'
+
+  command :status do |c|
+    c.syntax = 'ulock status'
+    c.summary = 'list files need encrypting and decrypting'
+    c.action do |args, options|
+      i = Ulock::Interface.new
+      i.status 
+      i.shorthelp
+    end
+  end
+
+  alias_command :list, :status
+
+  command :encrypt do |c|
+    c.syntax = 'ulock encrypt [-r recipient] file [..other files]'
+    c.summary = 'encrypt a file'
+    c.example 'description', 'ulock encrypt secret.py'
+    c.option '-r', 'recipient'
+    c.action do |args, options|
+      if args.empty?
+        Ulock::PROMPT.say "no file specified"
+      else
+        i = Ulock::Interface.new(options['recipient'])
+        args.each do |file|
+          i.encrypt(file) 
+        end
+      end
+    end
+  end
+
+  command :decrypt do |c|
+    c.syntax = 'ulock decrypt [file] [...other files]'
+    c.summary = 'decrypt a file'
+    c.example 'decrypt locked file', 'ulock decrypt locked/file.gpg'
+    c.action do |args, options|
+      i = Ulock::Interface.new
+      args.each do |file|
+        i.decrypt(file)
+      end
+    end
+  end
+
+  command :'fix all' do |c|
+    c.syntax = 'ulock fix all [-r recipient]'
+    c.summary = 'encrypt and decrypt all'
+    c.option '-r', 'recipient'
+    c.example 'with a recipient', 'ulock fix all -r owner@example.com'
+    c.action do |args, options|
+      i = Ulock::Interface.new(options.r)
+      i.status
+      if i.any?
+        if !Ulock::PROMPT.no?("Encrypt and decrypt all?")
+          i.fix_all
+        end
+      else
+        i.shorthelp
+      end
+    end
+  end
+
+  command :'interactive' do |c|
+    c.syntax = 'ulock interactive [-r]'
+    c.summary = 'interactively encrypt and decrypt'
+    c.option '-r STRING', String, 'recipient'
+    c.example 'with a recipient', 'ulock interactive -r owner@example.com'
+    c.action do |args, options|
+      i = Ulock::Interface.new(options.r)
+      if i.any?
+        i.interactive
+      else
+        Ulock::PROMPT.say "There are no files to encrypt or decrypt"
+        i.shorthelp
+      end
+    end
+  end
+
+  default_command :status
+end
