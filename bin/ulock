@@ -5,8 +5,8 @@ require 'commander'
 
 Commander.configure do
   program :name, 'ulock'
-  program :version, '0.0.1'
-  program :description, 'lock and unlock files, real easy'
+  program :version, '0.1.3'
+  program :description, 'lock and unlock files. Tiny wrapper around gpg'
 
   command :status do |c|
     c.syntax = 'ulock status'

@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Teensy wrapper around gpg, mostly to make it easier to lock up my project euler files}
   spec.license       = "MIT"
 
-  spec.files         = ['lib/ulock.rb']
+  spec.files         = ['lib/ulock.rb', 'lib/version.rb']
   spec.executables   << 'ulock'
   spec.require_paths = ["lib"]
   spec.bindir = 'bin'

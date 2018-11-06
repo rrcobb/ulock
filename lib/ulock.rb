@@ -5,14 +5,17 @@ module Ulock
   PROMPT = TTY::Prompt.new
   EXCLUDE_EXTENSIONS = ['.md', '.txt']
   class << self
+    def files(glob)
+      Dir.glob(glob).reject { |f| File.directory?(f) }
+    end
+
     def encrypted_files
-      Dir.glob('./*/*.gpg')
+      files('**/*.gpg')
     end
 
     def other_files
-      # Assumption: files are level down the directory tree
-      glb = "./*/*[!.gpg,#{EXCLUDE_EXTENSIONS.join(",")}]"
-      Dir.glob(glb) 
+      glb = "**/*[!.gpg,#{EXCLUDE_EXTENSIONS.join(",")}]"
+      files(glb) 
     end
 
     def missing_decrypted_version
